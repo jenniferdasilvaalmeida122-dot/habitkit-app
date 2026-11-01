@@ -110,11 +110,11 @@ Se o artefato tiver expirado ou estiver ausente, execute novamente o workflow in
 A tela interna de cada hábito segue uma composição reduzida: ícone, nome e descrição opcional, histórico anual com rolagem própria, sequência/meta, calendário e notas. Estatísticas e evolução permanecem em uma seção recolhível; registro de hoje, compartilhamento e arquivamento ficam no menu de opções. O calendário oferece seleção de mês, retorno a hoje e edição dos dias. Nenhum registro ou cor existente é removido por essa mudança visual.
 
 
-## Alter Ego — reconstrução conforme a referência
+## Vision Board — acesso direto
 
-A aba **Alter Ego** permanece antes de **Ajustes**. A experiência anterior com etapas, páginas e indicadores foi substituída por uma entrada com foto principal, nome, descrição, características e prévia da composição. O botão Abrir Moodboard abre a apresentação da gravação: capa com título e três polaroides, categorias deslizantes, mural em duas colunas e ação de adicionar fixa embaixo. O lápis abre o editor de composição livre. Criar e editar a identidade usa um formulário direto, com foto da galeria e características personalizadas.
+A aba **Vision Board** fica antes de Ajustes e abre diretamente o mural. A tela de identidade, a foto de perfil, nome pessoal, descrição, características e o formulário inicial foram retirados da interface. Não é necessário criar um perfil ou preencher etapas para começar a adicionar imagens e textos.
 
-O formulário **Novo recorte** segue a referência: categoria, seleção Imagem/Texto, prévia da foto, legenda curta ou frase principal, detalhe opcional e ação **Colar no moodboard**. A visualização principal é o mural em duas colunas da gravação, com imagens em altura natural, legendas e cartões de frases. O editor acessível pelo lápis mantém os elementos posicionados livremente e permite sobreposição. Ambos usam os mesmos recortes; não há duplicação de dados.
+O mural mantém a estética da gravação: capa com polaroides, categorias horizontais, duas colunas de recortes e botão de adicionar fixo. O lápis abre a composição livre. O título do painel pode ser alterado em Opções do painel → Renomear painel.
 
 Recursos do editor:
 
@@ -123,7 +123,7 @@ Recursos do editor:
 - Recorte de imagens **reversível**, com proporções, posição horizontal/vertical e zoom. O arquivo original continua guardado; a composição exportada aplica o mesmo enquadramento.
 - Filtros por Aparência, Corpo e saúde, Carreira e dinheiro, Estilo de vida, Casa e viagens, Personalidade e mentalidade, Relacionamentos e Espiritualidade. Categorias usadas em painéis antigos e categorias personalizadas são mantidas.
 - Visualização sem controles, tela cheia, duplicação/renomeação/exclusão de painéis e exportação PNG de 1600 × 2000. Compartilhamento nativo quando suportado, ou download da composição.
-- Vínculos entre características e **hábitos/metas existentes**. Não há criação de outro sistema de hábitos ou metas neste módulo.
+- Hábitos e metas existentes permanecem intactos. Os vínculos antigos da identidade são preservados nos dados e nos backups, sem formulário de identidade na interface.
 
 ### Dados, preservação e sincronização
 
@@ -144,6 +144,6 @@ python3 tests/alter-ego-browser.py
 python3 tests/production.py
 ```
 
-Os testes de navegador usam perfis isolados e arquivos de `dist/` em uma origem HTTPS interceptada, sem abrir localhost. Cobrem criação/edição da identidade, foto e características, formulários de recortes, movimento real por toque, tamanho/rotação/camadas, recorte reversível, texto, categorias, PNG, persistência após recarga, exclusão, vínculos existentes, dados legados, backup e larguras de 320 a 1440 px. Não inserem dados fictícios no perfil do usuário nem comprovam o deploy público.
+Os testes de navegador usam perfis isolados e arquivos de `dist/` em uma origem HTTPS interceptada, sem abrir localhost. Cobrem acesso direto ao mural sem perfil, formulários de recortes, movimento real por toque, tamanho/rotação/camadas, recorte reversível, texto, categorias, PNG, persistência após recarga, exclusão, vínculos existentes, dados legados, backup e larguras de 320 a 1440 px. Não inserem dados fictícios no perfil do usuário nem comprovam o deploy público.
 
 A exportação do mural respeita as posições, alturas e tipografia das duas colunas mostradas na tela. A exportação do editor livre preserva o posicionamento manual, rotação e camadas. As duas opções geram PNG e utilizam as imagens persistidas no dispositivo. As categorias iniciais do mural seguem a gravação; categorias anteriores e personalizadas permanecem acessíveis.

@@ -25,27 +25,12 @@ with sync_playwright() as p:
     page.goto(BASE)
     action('Criar meu primeiro hábito').click();page.locator('#habit-form [name=name]').fill('Leitura diária');action('Criar hábito').click()
     expect(page.locator('.habit-card')).to_have_count(1)
-    assert page.locator('.tabbar button').all_text_contents()==['Hábitos','Estatísticas','Alter Ego','Ajustes']
-    action('Alter Ego').click()
-    expect(action('Construir meu alter ego')).to_be_visible()
-    page.screenshot(path='/tmp/identity-rebuilt-empty.png',full_page=True)
-    action('Construir meu alter ego').click()
-    field('name').fill('Minha versão confiante');field('description').fill('Eu escolho viver com intenção.')
-    page.locator('[name=traits][value="Confiante"]').check();page.locator('[name=traits][value="Disciplinada"]').check()
-    field('custom').fill('Curiosa');action('Adicionar').click()
-    expect(page.locator('[name=traits][value="Curiosa"]')).to_be_checked()
-    action('Escolher imagem principal').click();page.locator('#ir-photo-file').set_input_files(ROOT/'public/logo.png')
-    expect(page.locator('.ir-photo-pick img')).to_be_visible()
-    page.locator('.ir-link-picker summary').click()
-    page.locator('[name="habit-0"]').check()
-    action('Salvar identidade').click()
-    expect(page.locator('.ir-name h1')).to_have_text('Minha versão confiante')
-    expect(page.locator('.ir-cover')).to_be_visible()
-    assert 'Curiosa' in page.locator('.ir-traits').inner_text()
-    expect(action('Abrir Moodboard')).to_be_visible()
-    action('Abrir Moodboard').click()
+    assert page.locator('.tabbar button').all_text_contents()==['Hábitos','Estatísticas','Vision Board','Ajustes']
+    action('Vision Board').click()
     expect(page.locator('.ir-reference-mural')).to_be_visible()
-    expect(page.locator('.ir-video-hero h1')).to_contain_text('Minha versão confiante')
+    assert page.locator('#ir-identity-form,.ir-profile,.ir-name,.ir-link-picker').count()==0
+    expect(page.locator('.ir-reference-mural')).to_be_visible()
+    expect(page.locator('.ir-video-hero h1')).to_have_text('Vision Board')
     assert page.locator('.tabbar').is_hidden()
     assert page.locator('.ir-categories button').all_text_contents()[:5]==['Tudo','Visão','Looks','Maquiagem','Acessórios']
     action('Novo recorte').click();action('Escolher uma imagem').click()
@@ -138,22 +123,19 @@ with sync_playwright() as p:
     with page.expect_download() as d:action('Exportar composição').click()
     png='/tmp/identity-rebuilt-export.png';d.value.save_as(png);assert Path(png).read_bytes().startswith(b'\x89PNG')
     action('Voltar ao mural').first.click()
-    action('Voltar à identidade').click()
-    action('Editar identidade').click();field('name').fill('Minha nova fase');action('Salvar identidade').click()
-    expect(page.locator('.ir-name h1')).to_have_text('Minha nova fase')
-    page.reload();action('Visualizar identidade').click()
-    expect(page.locator('.ae-element')).to_have_count(2)
-    expect(page.locator('.ir-name h1')).to_have_text('Minha nova fase')
-    page.screenshot(path='/tmp/identity-rebuilt-main.png',full_page=True)
-    # The original habit is linked; the identity does not create duplicates.
-    page.locator('.ir-related summary').click();action('Leitura diária ↗').click()
-    expect(page.locator('.detail-identity h1')).to_have_text('Leitura diária')
-    action('Voltar aos hábitos').click();action('Alter Ego').click()
+    action('Opções do painel').click();action('Renomear painel').click()
+    field('title').fill('Meus sonhos');action('Salvar painel').click()
+    expect(page.locator('.ir-video-hero h1')).to_have_text('Meus sonhos')
+    action('Voltar aos hábitos').click();page.reload()
+    assert page.locator('.identity-home').count()==0
+    action('Vision Board').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(2)
+    expect(page.locator('.ir-video-hero h1')).to_have_text('Meus sonhos')
+    assert page.locator('#ir-identity-form,.ir-profile,.ir-name,.ir-link-picker').count()==0
     with page.expect_download() as d:action('Exportar backup').click()
     backup='/tmp/identity-rebuilt-backup.json';d.value.save_as(backup)
     bundle=json.loads(Path(backup).read_text());assert len(bundle['boards'][0]['elements'])==2
     assert bundle['boards'][0]['elements'][1]['src']==original_src
-    action('Abrir Moodboard').click()
     action('Opções do painel').click();action('Duplicar painel').click()
     expect(page.locator('#ae-board-select option')).to_have_count(2)
     action('Editar composição').click()
@@ -162,26 +144,22 @@ with sync_playwright() as p:
     # Restore does not erase existing habits; legacy workspace fields also survive.
     bundle['letter']={'content':'Carta legada preservada.','reviewDate':'2027-01-01','updatedAt':''}
     bundle['goals']=[{'id':'goal-existing','name':'Meta existente','description':'Uma meta anterior.','category':'Pessoal','trait':'Confiante','due':'2027-01-01','progress':25,'habitIds':[]}]
+    bundle['identity']['name']='Identidade antiga preservada'
     page.locator('#ae-import-file').set_input_files({'name':'legacy-workspace.json','mimeType':'application/json','buffer':json.dumps(bundle).encode()})
-    action('Confirmar').click();expect(page.locator('.ae-element')).to_have_count(2)
+    action('Confirmar').click();expect(page.locator('.ir-mural-card')).to_have_count(2)
     assert snapshot()['letter']['content']=='Carta legada preservada.'
-    action('Editar identidade').click();page.locator('.ir-link-picker summary').click()
-    page.locator('[name="goal-0"]').check();action('Salvar identidade').click()
-    page.locator('.ir-related summary').click();expect(page.get_by_text('Meta existente',exact=True)).to_be_visible()
+    assert snapshot()['identity']['name']=='Identidade antiga preservada'
+    expect(page.locator('.ir-video-hero h1')).to_have_text('Meus sonhos')
+    assert page.locator('#ir-identity-form,.ir-profile,.ir-name,.ir-link-picker').count()==0
     for width in [320,390,768,1440]:
         page.set_viewport_size({'width':width,'height':900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'),width
-    action('Abrir Moodboard').click()
-    for width in [320,390,768,1440]:
-        page.set_viewport_size({'width':width,'height':900})
-        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'),width
-    action('Voltar à identidade').click()
     action('Voltar aos hábitos').click();expect(page.locator('.habit-card')).to_have_count(1)
     action('Ajustes').click()
     with page.expect_download() as d:page.get_by_role('button',name='Exportar backup',exact=False).click()
     full='/tmp/identity-rebuilt-full-backup.json';d.value.save_as(full);saved=json.loads(Path(full).read_text())
-    assert saved['alterEgo']['identity']['name']=='Minha nova fase' and len(saved['habits'])==1
+    assert saved['alterEgo']['identity']['name']=='Identidade antiga preservada' and len(saved['habits'])==1
     assert len(saved['alterEgo']['goals'])==1 and saved['alterEgo']['letter']['content']=='Carta legada preservada.'
     assert not errors,errors
-    print(json.dumps({'alter_ego_rebuild':'passed','checks':['identity entry and focused editor','single identity form and photo','traits and custom traits','recording polaroid hero and two-column mural','horizontal recording categories','fixed add action','long-press removal','mural image export','reference cut sheets','real freeform canvas','mouse and touch movement','resize and rotate','text styling','reversible image crop','layer order','categories','background','fullscreen','PNG export','reopen without losing images','edit and delete','existing habit and goal links','legacy data preservation','complete backup','responsive widths'],'browser_errors':errors}))
+    print(json.dumps({'alter_ego_rebuild':'passed','checks':['direct Vision Board tab','no identity profile or setup gate','recording polaroid hero and two-column mural','horizontal recording categories','fixed add action','long-press removal','mural image export','reference cut sheets','real freeform canvas','mouse and touch movement','resize and rotate','text styling','reversible image crop','layer order','categories','background','fullscreen','PNG export','reopen without losing images','edit and delete','existing habits unchanged','legacy data preservation','complete backup','responsive widths'],'browser_errors':errors}))
     browser.close()
