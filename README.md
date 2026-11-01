@@ -24,7 +24,7 @@ O build pode ser hospedado em qualquer servidor estático com HTTPS. Nenhum segr
 
 - Hábitos de sim/não, contagem e medida, metas, unidades, cores, ícones e emoji.
 - Frequência diária ou por dias da semana, categorias e hábitos negativos (concluir indica um dia em que conseguiu evitar o comportamento).
-- Cartões Classic, Compact e Split; reorganização com controles para cima e para baixo.
+- Três visualizações: Classic com histórico anual e degradê na cor do hábito; Compact com tabela editável dos últimos cinco dias; Split com cartões de calendário mensal e navegação entre meses. Reorganização com controles para cima e para baixo, inclusive na tabela.
 - Histórico de aproximadamente um ano, semanas nas colunas e sete dias nas linhas. Dias futuros não são editáveis.
 - Calendário mensal, edição retroativa de valores e notas, sequências, taxas, totais e evolução semanal/mensal.
 - Edição, exclusão confirmada, arquivamento e restauração de hábitos.
@@ -32,6 +32,8 @@ O build pode ser hospedado em qualquer servidor estático com HTTPS. Nenhum segr
 - Backup JSON com validação antes da substituição e confirmação explícita; download dos dados originais se o armazenamento estiver corrompido.
 - Compartilhamento nativo de texto quando suportado e exportação de resumo como alternativa.
 - PWA instalável, funcionamento offline após a primeira visita online e lembretes enquanto o app está aberto e ativo.
+
+A paleta oferece cores vivas. Dias vazios recebem um tom suave da cor do hábito, registros parciais usam intensidade intermediária e metas concluídas recebem a cor plena. As cores já escolhidas nos hábitos existentes são preservadas e continuam editáveis.
 
 Os exemplos da tela vazia são sugestões: criam apenas o hábito escolhido, sem fabricar histórico. Não há dados de demonstração inseridos automaticamente.
 

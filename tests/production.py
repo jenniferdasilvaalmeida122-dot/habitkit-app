@@ -36,6 +36,54 @@ with sync_playwright() as p:
     assert page.locator('.complete-button.completed').count()==1
     page.reload()
     assert page.locator('.complete-button.completed').count()==1
+    # Verify the reference layouts with real interactions and isolated test data.
+    page.get_by_role('button',name='Adicionar hábito',exact=True).click()
+    page.locator('input[name=name]').fill('Beber água')
+    page.locator('select[name=type]').select_option('count')
+    page.locator('input[name=goal]').fill('8')
+    page.locator('input[name=unit]').fill('copos')
+    page.locator('input[name=color][value="#20a4df"]').check()
+    page.get_by_role('button',name='Criar hábito',exact=True).click()
+    page.get_by_role('button',name='Últimos 5 dias',exact=True).click()
+    assert page.locator('.recent-row').count()==2
+    assert page.locator('.recent-day').count()==10
+    page.locator('.recent-row').last.locator('.recent-day').last.click()
+    page.locator('input[name=value]').fill('4')
+    page.get_by_role('button',name='Salvar registro',exact=True).click()
+    assert page.locator('.recent-row').last.locator('.recent-day').last.inner_text()=='4'
+    page.screenshot(path='/tmp/habitkit-five-days.png',full_page=True)
+    page.get_by_role('button',name='Calendário mensal',exact=True).click()
+    assert page.locator('.mini-month').count()==2
+    page.locator('.mini-month').last.locator('.month-cell.today').click()
+    page.locator('input[name=value]').fill('8')
+    page.get_by_role('button',name='Salvar registro',exact=True).click()
+    assert page.locator('.mini-month .month-cell.today.filled').count()==2
+    page.get_by_role('button',name='Calendário mensal: mês anterior',exact=True).click()
+    page.get_by_role('button',name='Calendário mensal: próximo mês',exact=True).click()
+    assert page.get_by_role('button',name='Calendário mensal: próximo mês',exact=True).is_disabled()
+    page.screenshot(path='/tmp/habitkit-month-cards.png',full_page=True)
+    page.get_by_role('button',name='Cartões',exact=True).click()
+    assert page.locator('.heatmap').count()==2
+    page.get_by_role('button',name='Opções de visualização',exact=True).click()
+    page.get_by_role('button',name='Reorganizar hábitos',exact=True).click()
+    page.get_by_role('button',name='Mover Produção verificada para baixo',exact=True).click()
+    assert page.locator('.habit-title strong').first.inner_text()=='Beber água'
+    page.get_by_role('button',name='Concluir organização',exact=True).click()
+    page.get_by_role('button',name='Opções de visualização',exact=True).click()
+    page.reload()
+    assert page.locator('.habit-title strong').first.inner_text()=='Beber água'
+    page.screenshot(path='/tmp/habitkit-colored-cards.png',full_page=True)
+    for layout in ['Últimos 5 dias','Calendário mensal','Cartões']:
+        page.get_by_role('button',name=layout,exact=True).click()
+        for width in [320,390,430,1440]:
+            page.set_viewport_size({'width':width,'height':900})
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (layout,width)
+    page.get_by_role('button',name='Ajustes',exact=True).click()
+    page.locator('#theme').select_option('dark')
+    page.get_by_role('button',name='Hábitos',exact=True).click()
+    assert page.locator('html').get_attribute('data-theme')=='dark'
+    page.set_viewport_size({'width':390,'height':844})
+    page.screenshot(path='/tmp/habitkit-colored-dark.png',full_page=True)
     for width in [390,1440]:
         page.set_viewport_size({'width':width,'height':900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -47,5 +95,5 @@ with sync_playwright() as p:
     manifest=json.loads((ROOT/'manifest.webmanifest').read_text())
     assert manifest['start_url']=='./' and manifest['scope']=='./'
     assert (ROOT / manifest['icons'][0]['src']).is_file()
-    print(json.dumps({'production_build':'passed','base_path':'/habitkit-app/','checks':['built assets','create habit','completion','persistence','mobile and desktop','manifest paths'],'browser_errors':errors}))
+    print(json.dumps({'production_build':'passed','base_path':'/habitkit-app/','checks':['built assets','create habit','completion','persistence','mobile and desktop','manifest paths','five-day table','monthly cards','partial progress','historical editing','month navigation','reorder persistence','dark theme'],'browser_errors':errors}))
     browser.close()

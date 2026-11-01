@@ -42,9 +42,9 @@ with sync_playwright() as p:
     assert page.evaluate('JSON.parse(localStorage.habitkit).habits[0].startDate')==retro_date
     action(page,'Editar').click()
     page.locator('input[name=name]').fill('Meditar com calma')
-    page.locator('input[name=color][value="#768bc3"]').check()
+    page.locator('input[name=color][value="#6664ee"]').check()
     action(page,'Salvar alterações').click()
-    assert page.locator('.detail-page').get_attribute('style')=='--habit:#768bc3'
+    assert page.locator('.detail-page').get_attribute('style')=='--habit:#6664ee'
     action(page,'Hábitos').first.click()
     action(page,'Adicionar hábito').click()
     page.locator('input[name=name]').fill('Beber água')
