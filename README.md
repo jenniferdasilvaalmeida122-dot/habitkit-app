@@ -1,0 +1,89 @@
+# HabitKit
+
+Aplicativo web de acompanhamento de hábitos, em português, inspirado na linguagem visual do HabitKit para iOS. Implementação independente, sem afiliação ao produto original.
+
+## Desenvolvimento
+
+Requer Node.js 20 ou superior. Não usa dependências externas nem exige banco de dados, credenciais ou instalação de pacotes.
+
+```sh
+npm run dev
+```
+
+O servidor usa a porta 5173, configurável pela variável `PORT`.
+
+```sh
+npm test          # regras de negócio e validação de backups
+npm run build     # artefatos estáticos em dist/
+node server.mjs --dist  # servir o build
+```
+
+O build pode ser hospedado em qualquer servidor estático com HTTPS. Nenhum segredo deve ser colocado no frontend. Na implantação, sirva `sw.js` sem cache prolongado.
+
+## Recursos
+
+- Hábitos de sim/não, contagem e medida, metas, unidades, cores, ícones e emoji.
+- Frequência diária ou por dias da semana, categorias e hábitos negativos (concluir indica um dia em que conseguiu evitar o comportamento).
+- Cartões Classic, Compact e Split; reorganização com controles para cima e para baixo.
+- Histórico de aproximadamente um ano, semanas nas colunas e sete dias nas linhas. Dias futuros não são editáveis.
+- Calendário mensal, edição retroativa de valores e notas, sequências, taxas, totais e evolução semanal/mensal.
+- Edição, exclusão confirmada, arquivamento e restauração de hábitos.
+- Temas claro, escuro e automático; preferências persistentes.
+- Backup JSON com validação antes da substituição e confirmação explícita; download dos dados originais se o armazenamento estiver corrompido.
+- Compartilhamento nativo de texto quando suportado e exportação de resumo como alternativa.
+- PWA instalável, funcionamento offline após a primeira visita online e lembretes enquanto o app está aberto e ativo.
+
+Os exemplos da tela vazia são sugestões: criam apenas o hábito escolhido, sem fabricar histórico. Não há dados de demonstração inseridos automaticamente.
+
+## Dados e estatísticas
+
+Tudo fica em `localStorage` no dispositivo. Não há conta, telemetria, backend ou sincronização. Faça backups antes de limpar o navegador ou mudar de dispositivo. Em falhas de armazenamento, o app informa que a alteração não pôde ser salva. Dados ilegíveis são preservados e a edição fica bloqueada até restaurar um backup válido.
+
+As estatísticas consideram os dias programados desde o início do acompanhamento; registrar uma data anterior amplia esse início. Dias não programados não quebram sequências. Uma meta ainda não atingida hoje não quebra a sequência antes do fim do dia. Alterar meta ou frequência recalcula o histórico segundo as regras atuais. Arquivados não entram nas estatísticas gerais, mas preservam seus próprios registros.
+
+## Limitações da plataforma
+
+- Notificações exigem permissão do usuário e suporte do navegador. Sem suporte ou permissão, lembretes aparecem dentro do app.
+- Lembretes funcionam com o app aberto e ativo; não há garantia de execução em segundo plano. Notificações agendadas com o app fechado exigem push com backend ou aplicativo nativo.
+- No iPhone, a instalação deve ser feita pelo Safari em Compartilhar → Adicionar à Tela de Início. Notificações web dependem também da versão do iOS e da instalação.
+- Widgets nativos iOS não são disponibilizados por este aplicativo web. A PWA oferece acesso pela tela inicial.
+- Acesso a service worker, instalação e compartilhamento dependem de HTTPS (ou localhost em desenvolvimento).
+
+## Validação visual
+
+A referência da App Store foi solicitada, mas o proxy do ambiente bloqueou `apps.apple.com` com HTTP 403. A interface foi implementada a partir do briefing; fidelidade exata às capturas oficiais ainda precisa ser comparada após a liberação da rede. Os domínios Apple necessários foram salvos no rascunho de configuração.
+
+Testes de navegador adicionais usam Python com Playwright e Chromium. No ambiente preparado:
+
+```sh
+python3 tests/browser.py
+```
+
+Esses testes usam um perfil temporário e dados próprios, sem alterar dados de usuários. Capturas de validação ficam em `/tmp`.
+
+## Publicação na internet — GitHub Pages
+
+O repositório inclui `.github/workflows/deploy.yml`. Cada push na branch `main` executa os testes, gera `dist/` e publica o artefato pelo GitHub Actions. Os caminhos do HTML, manifesto e service worker funcionam no subdiretório `/habitkit-app/`.
+
+Ativação inicial pelo proprietário do repositório:
+
+1. Abra **Settings → Pages** em `https://github.com/jenniferdasilvaalmeida122-dot/habitkit-app/settings/pages`.
+2. Em **Build and deployment → Source**, selecione **GitHub Actions**.
+3. Em **Actions → Publicar HabitKit no GitHub Pages**, execute **Run workflow** na branch `main` (ou reexecute um workflow que falhou antes da ativação).
+4. Aguarde os jobs `build` e `deploy` ficarem verdes. O link confirmado de publicação aparece no ambiente `github-pages` e em Settings → Pages.
+
+Endereço esperado após a publicação bem-sucedida:
+`https://jenniferdasilvaalmeida122-dot.github.io/habitkit-app/`
+
+Esse endereço não deve ser considerado ativo antes de o deploy concluir. Se o repositório for privado, a disponibilidade do Pages depende do plano GitHub; não altere sua visibilidade sem decidir se deseja tornar todo o código público. Se Actions estiver desativado, habilite-o em Settings → Actions → General. Políticas da conta podem exigir aprovação do ambiente `github-pages`.
+
+Não é necessário cadastrar tokens ou segredos para esse workflow: ele usa o `GITHUB_TOKEN` temporário fornecido pelo próprio GitHub com permissões de Pages e identidade OIDC. Mac e celular usam o mesmo endereço HTTPS, mas os históricos continuam separados em cada navegador; use backup/restauração para transferir dados.
+
+Validação do build para hospedagem em subdiretório, sem abrir servidor local:
+
+```sh
+npm run build
+python3 tests/production.py
+```
+
+O teste intercepta as requisições em uma origem HTTPS de teste e serve os arquivos de `dist`; verifica recursos, criação, conclusão, persistência e responsividade. Não representa um teste do site público e não valida o service worker em produção.
