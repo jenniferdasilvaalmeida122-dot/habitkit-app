@@ -1,4 +1,4 @@
-export const COLORS=['#c72d67','#598c72','#c59050','#768bc3','#bd7c90','#879d55','#5d9da4','#a38bc5','#c77758'];
+export const COLORS=['#598c72','#c59050','#768bc3','#bd7c90','#879d55','#5d9da4','#a38bc5','#c77758','#c72d67'];
 export const ICONS=['leaf','book','drop','run','sun','moon','heart','dumbbell','coffee','pencil','spark','phone'];
 export const dateKey=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export const parseDate=s=>new Date(s+'T12:00:00');
