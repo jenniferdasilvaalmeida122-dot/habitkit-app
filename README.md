@@ -112,13 +112,13 @@ A tela interna de cada hábito segue uma composição reduzida: ícone, nome e d
 
 ## Alter Ego — reconstrução conforme a referência
 
-A aba **Alter Ego** permanece antes de **Ajustes**. A experiência anterior com etapas, páginas e indicadores foi substituída por uma entrada com foto principal, nome, descrição, características e prévia da composição. O botão Abrir Moodboard leva ao editor livre, organizado como a referência, com cabeçalho, composição visual, categorias e recortes. Criar e editar a identidade usa um formulário direto, com foto da galeria e características personalizadas.
+A aba **Alter Ego** permanece antes de **Ajustes**. A experiência anterior com etapas, páginas e indicadores foi substituída por uma entrada com foto principal, nome, descrição, características e prévia da composição. O botão Abrir Moodboard abre a apresentação da gravação: capa com título e três polaroides, categorias deslizantes, mural em duas colunas e ação de adicionar fixa embaixo. O lápis abre o editor de composição livre. Criar e editar a identidade usa um formulário direto, com foto da galeria e características personalizadas.
 
-O formulário **Novo recorte** segue a referência: categoria, seleção Imagem/Texto, prévia da foto, legenda curta ou frase principal, detalhe opcional e ação **Colar no moodboard**. O painel não é uma galeria: imagens e textos são elementos posicionados livremente, que podem se sobrepor.
+O formulário **Novo recorte** segue a referência: categoria, seleção Imagem/Texto, prévia da foto, legenda curta ou frase principal, detalhe opcional e ação **Colar no moodboard**. A visualização principal é o mural em duas colunas da gravação, com imagens em altura natural, legendas e cartões de frases. O editor acessível pelo lápis mantém os elementos posicionados livremente e permite sobreposição. Ambos usam os mesmos recortes; não há duplicação de dados.
 
 Recursos do editor:
 
-- Movimento por mouse e toque, redimensionamento por alça e campos numéricos, rotação e ordem de camadas.
+- Toque em um cartão para editar e toque longo para remover, conforme a gravação. No editor livre, movimento por mouse e toque, redimensionamento por alça e campos numéricos, rotação e ordem de camadas.
 - Edição de frases e palavras, fonte, tamanho, cores, destaque, borda, cantos e fundo do painel.
 - Recorte de imagens **reversível**, com proporções, posição horizontal/vertical e zoom. O arquivo original continua guardado; a composição exportada aplica o mesmo enquadramento.
 - Filtros por Aparência, Corpo e saúde, Carreira e dinheiro, Estilo de vida, Casa e viagens, Personalidade e mentalidade, Relacionamentos e Espiritualidade. Categorias usadas em painéis antigos e categorias personalizadas são mantidas.
@@ -145,3 +145,5 @@ python3 tests/production.py
 ```
 
 Os testes de navegador usam perfis isolados e arquivos de `dist/` em uma origem HTTPS interceptada, sem abrir localhost. Cobrem criação/edição da identidade, foto e características, formulários de recortes, movimento real por toque, tamanho/rotação/camadas, recorte reversível, texto, categorias, PNG, persistência após recarga, exclusão, vínculos existentes, dados legados, backup e larguras de 320 a 1440 px. Não inserem dados fictícios no perfil do usuário nem comprovam o deploy público.
+
+A exportação do mural respeita as posições, alturas e tipografia das duas colunas mostradas na tela. A exportação do editor livre preserva o posicionamento manual, rotação e camadas. As duas opções geram PNG e utilizam as imagens persistidas no dispositivo. As categorias iniciais do mural seguem a gravação; categorias anteriores e personalizadas permanecem acessíveis.

@@ -44,6 +44,35 @@ with sync_playwright() as p:
     assert 'Curiosa' in page.locator('.ir-traits').inner_text()
     expect(action('Abrir Moodboard')).to_be_visible()
     action('Abrir Moodboard').click()
+    expect(page.locator('.ir-reference-mural')).to_be_visible()
+    expect(page.locator('.ir-video-hero h1')).to_contain_text('Minha versão confiante')
+    assert page.locator('.tabbar').is_hidden()
+    assert page.locator('.ir-categories button').all_text_contents()[:5]==['Tudo','Visão','Looks','Maquiagem','Acessórios']
+    action('Novo recorte').click();action('Escolher uma imagem').click()
+    page.locator('#ir-cut-file').set_input_files(ROOT/'public/logo.png')
+    field('content').fill('Minha referência do vídeo');action('✓ Colar no moodboard').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(1)
+    action('Adicionar ao moodboard').click();action('Texto').click()
+    field('content').fill('Eu sou mágica.');field('detail').fill('A vida que ela está construindo.')
+    page.locator('.ir-destinations [data-category="Afirmações"]').click()
+    action('✓ Colar no moodboard').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(2)
+    assert page.locator('.ir-mural-grid').evaluate("el=>getComputedStyle(el).columnCount")=='2'
+    assert page.locator('.ir-mural-sticky').evaluate("el=>getComputedStyle(el).position")=='sticky'
+    page.screenshot(path='/tmp/moodboard-recording-layout.png',full_page=True)
+    with page.expect_download() as d:action('Exportar mural').click()
+    file='/tmp/moodboard-recording-export.png';d.value.save_as(file)
+    assert Path(file).read_bytes().startswith(b'\x89PNG')
+    # Long press opens real deletion, while a tap edits the reference card.
+    card=page.locator('[data-ego=feed-cut]').first
+    card.evaluate("el=>el.scrollIntoView({block:'center'})")
+    box=card.bounding_box();page.mouse.move(box['x']+box['width']/2,box['y']+box['height']/2);page.mouse.down()
+    expect(page.get_by_role('heading',name='Remover recorte?',exact=True)).to_be_visible()
+    page.mouse.up();action('Confirmar').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(1)
+    page.locator('[data-ego=feed-cut]').click();action('Remover recorte').click();action('Confirmar').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(0)
+    action('Editar composição').click()
     expect(page.locator('.ae-canvas')).to_be_visible()
     # No old dashboard, wizard, letters or parallel goal/habit creation.
     assert page.locator('.ae-sections,.ae-progress,.ae-letter,.ae-cut-masonry').count()==0
@@ -108,6 +137,8 @@ with sync_playwright() as p:
     action('Visualizar painel').click();assert page.locator('.ae-resize').count()==0;action('Editar painel').click()
     with page.expect_download() as d:action('Exportar composição').click()
     png='/tmp/identity-rebuilt-export.png';d.value.save_as(png);assert Path(png).read_bytes().startswith(b'\x89PNG')
+    action('Voltar ao mural').first.click()
+    action('Voltar à identidade').click()
     action('Editar identidade').click();field('name').fill('Minha nova fase');action('Salvar identidade').click()
     expect(page.locator('.ir-name h1')).to_have_text('Minha nova fase')
     page.reload();action('Visualizar identidade').click()
@@ -125,6 +156,7 @@ with sync_playwright() as p:
     action('Abrir Moodboard').click()
     action('Opções do painel').click();action('Duplicar painel').click()
     expect(page.locator('#ae-board-select option')).to_have_count(2)
+    action('Editar composição').click()
     page.locator('.ae-element').last.click();action('Remover').click();action('Confirmar').click()
     expect(page.locator('.ae-element')).to_have_count(1)
     # Restore does not erase existing habits; legacy workspace fields also survive.
@@ -151,5 +183,5 @@ with sync_playwright() as p:
     assert saved['alterEgo']['identity']['name']=='Minha nova fase' and len(saved['habits'])==1
     assert len(saved['alterEgo']['goals'])==1 and saved['alterEgo']['letter']['content']=='Carta legada preservada.'
     assert not errors,errors
-    print(json.dumps({'alter_ego_rebuild':'passed','checks':['identity entry and focused editor','single identity form and photo','traits and custom traits','reference cut sheets','real freeform canvas','mouse and touch movement','resize and rotate','text styling','reversible image crop','layer order','categories','background','fullscreen','PNG export','reopen without losing images','edit and delete','existing habit and goal links','legacy data preservation','complete backup','responsive widths'],'browser_errors':errors}))
+    print(json.dumps({'alter_ego_rebuild':'passed','checks':['identity entry and focused editor','single identity form and photo','traits and custom traits','recording polaroid hero and two-column mural','horizontal recording categories','fixed add action','long-press removal','mural image export','reference cut sheets','real freeform canvas','mouse and touch movement','resize and rotate','text styling','reversible image crop','layer order','categories','background','fullscreen','PNG export','reopen without losing images','edit and delete','existing habit and goal links','legacy data preservation','complete backup','responsive widths'],'browser_errors':errors}))
     browser.close()
