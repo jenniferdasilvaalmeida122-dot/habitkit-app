@@ -70,5 +70,14 @@ window.addEventListener('storage',e=>{if(e.key==='habitkit'){try{state=e.newValu
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(state.settings.theme==='system')render()});
 let lastDay=dateKey();function checkReminders(){if(dateKey()!==lastDay){lastDay=dateKey();render()}if(!state.settings.reminders||document.visibilityState!=='visible')return;const now=new Date(),time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;for(const h of active()){const key=h.id+':'+dateKey();if(!h.reminder||h.reminder>time||!scheduled(h,dateKey())||done(h,dateKey())||state.notifications[key])continue;if(mutate(()=>state.notifications[key]=true)){if('Notification'in window&&Notification.permission==='granted'){navigator.serviceWorker?.ready.then(r=>r.showNotification(h.name,{body:'Um pequeno passo por você. Abra o HabitKit para registrar.',icon:new URL('../public/logo.png',import.meta.url).href,tag:key})).catch(()=>toast('Hora de '+h.name))}else toast('Seu lembrete: '+h.name)}}}
 setInterval(checkReminders,30000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkReminders()});
-if('serviceWorker'in navigator)navigator.serviceWorker.register(new URL('../sw.js',import.meta.url)).catch(()=>{});
+if('serviceWorker'in navigator){
+ const wasControlled=Boolean(navigator.serviceWorker.controller);
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{
+  if(wasControlled){if(modal)toast('Atualização disponível. Salve seu formulário e recarregue a página.');else location.reload()}
+ });
+ navigator.serviceWorker.register(new URL('../sw.js',import.meta.url),{updateViaCache:'none'}).then(registration=>{
+  registration.update().catch(()=>{});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')registration.update().catch(()=>{})});
+ }).catch(()=>{});
+}
 render();setTimeout(checkReminders,1000);

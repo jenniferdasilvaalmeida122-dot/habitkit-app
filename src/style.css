@@ -6,3 +6,7 @@
 /* Display the original uploaded logo without cropping, recoloring or redrawing. */
 .brand-logo{display:block;width:48px;height:48px;object-fit:contain;border-radius:12px;flex-shrink:0}.settings-profile .brand-mark{width:64px;height:64px;background:transparent}.settings-profile .brand-logo{width:64px;height:64px;border-radius:16px}
 @media(max-width:600px){.desktop-brand .brand-logo{width:40px;height:40px;border-radius:10px}}
+/* Make the full original artwork prominent, including its original margins. */
+.desktop-brand{height:130px;gap:12px}.desktop-brand .brand-logo{width:88px;height:88px;border-radius:16px}.settings-profile .brand-mark,.settings-profile .brand-logo{width:88px;height:88px}
+@media(max-width:600px){.desktop-brand{height:110px}.desktop-brand .brand-logo{width:76px;height:76px;border-radius:14px}.brand-caption{font-size:6px;letter-spacing:1px}}
+@media(max-width:360px){.brand-caption{display:none}}

@@ -1,7 +1,23 @@
-import {mkdir,copyFile,cp,rm} from 'node:fs/promises';
+import {mkdir,copyFile,cp,rm,readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 await rm('dist',{recursive:true,force:true});
 await mkdir('dist',{recursive:true});
 for(const file of ['index.html','manifest.webmanifest','sw.js']) await copyFile(file,'dist/'+file);
 await cp('src','dist/src',{recursive:true});
 await cp('public','dist/public',{recursive:true});
-console.log('Build pronto em dist/');
+// New content gets new asset URLs, so a previous browser/CDN cache cannot hide it.
+const hash=createHash('sha256');
+for(const file of ['index.html','src/app.js','src/model.js','src/style.css','sw.js','manifest.webmanifest','public/logo.png']) hash.update(await readFile(file));
+const revision=hash.digest('hex').slice(0,12);
+let html=await readFile('dist/index.html','utf8');
+for(const file of ['src/app.js','src/style.css']) html=html.replaceAll(`./${file}`,`./${file}?v=${revision}`);
+await writeFile('dist/index.html',html);
+let app=await readFile('dist/src/app.js','utf8');
+app=app.replace("from './model.js'",`from './model.js?v=${revision}'`);
+await writeFile('dist/src/app.js',app);
+let worker=await readFile('dist/sw.js','utf8');
+worker=worker.replace('habitkit-v4-',`habitkit-${revision}-`);
+for(const file of ['src/app.js','src/model.js','src/style.css']) worker=worker.replaceAll(`'${file}'`,`'${file}?v=${revision}'`);
+await writeFile('dist/sw.js',worker);
+await writeFile('dist/version.json',JSON.stringify({revision})+'\n');
+console.log(`Build pronto em dist/ — versão ${revision}`);

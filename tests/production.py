@@ -26,6 +26,9 @@ with sync_playwright() as p:
     page=context.new_page()
     page.on('pageerror',lambda e: errors.append(str(e)))
     page.goto(BASE)
+    page.locator('.desktop-brand .brand-logo').wait_for(state='visible')
+    assert page.locator('.desktop-brand .brand-logo').evaluate('(img) => img.complete && img.naturalWidth === 1254'), 'Original logo failed to load'
+    page.screenshot(path='/tmp/habitkit-logo-mobile.png',full_page=True)
     page.get_by_role('button',name='Criar meu primeiro hábito',exact=True).click()
     page.locator('input[name=name]').fill('Produção verificada')
     page.get_by_role('button',name='Criar hábito',exact=True).click()
@@ -36,6 +39,8 @@ with sync_playwright() as p:
     for width in [390,1440]:
         page.set_viewport_size({'width':width,'height':900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.get_by_role('button',name='Ajustes',exact=True).click()
+    assert page.locator('.settings-profile .brand-logo').evaluate('(img) => img.complete && img.naturalWidth === 1254')
     assert not errors,errors
     for asset in ['index.html','src/app.js','src/model.js','src/style.css','public/logo.png']:
         assert asset in requests, f'Not exercised: {asset}'
