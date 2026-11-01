@@ -1,7 +1,7 @@
 // Scope the cache and asset URLs to support both a domain root and GitHub Pages.
 const BASE = new URL(self.registration.scope);
-const CACHE = `habitkit-v2-${BASE.pathname}`;
-const FILES = ['', 'index.html', 'src/app.js', 'src/model.js', 'src/style.css', 'manifest.webmanifest', 'public/icon.svg'].map(file => new URL(file, BASE).href);
+const CACHE = `habitkit-v3-${BASE.pathname}`;
+const FILES = ['', 'index.html', 'src/app.js', 'src/model.js', 'src/style.css', 'manifest.webmanifest', 'public/logo.png'].map(file => new URL(file, BASE).href);
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)));
   self.skipWaiting();

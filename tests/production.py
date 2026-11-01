@@ -8,7 +8,7 @@ import json
 
 ROOT = Path(__file__).resolve().parents[1] / 'dist'
 BASE = 'https://production.test/habitkit-app/'
-MIME = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.webmanifest':'application/manifest+json'}
+MIME = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml','.png':'image/png', '.webmanifest':'application/manifest+json'}
 with sync_playwright() as p:
     browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
     context=browser.new_context(viewport={'width':390,'height':844},service_workers='block',timezone_id='America/Sao_Paulo')
@@ -37,7 +37,7 @@ with sync_playwright() as p:
         page.set_viewport_size({'width':width,'height':900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     assert not errors,errors
-    for asset in ['index.html','src/app.js','src/model.js','src/style.css']:
+    for asset in ['index.html','src/app.js','src/model.js','src/style.css','public/logo.png']:
         assert asset in requests, f'Not exercised: {asset}'
     manifest=json.loads((ROOT/'manifest.webmanifest').read_text())
     assert manifest['start_url']=='./' and manifest['scope']=='./'
