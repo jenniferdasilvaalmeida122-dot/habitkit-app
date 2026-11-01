@@ -87,3 +87,20 @@ python3 tests/production.py
 ```
 
 O teste intercepta as requisições em uma origem HTTPS de teste e serve os arquivos de `dist`; verifica recursos, criação, conclusão, persistência e responsividade. Não representa um teste do site público e não valida o service worker em produção.
+
+### Diagnóstico de falhas no GitHub Pages
+
+O workflow verifica a configuração com `actions/configure-pages@v5`, valida os arquivos obrigatórios em `dist/`, envia esse diretório com `actions/upload-pages-artifact@v3` sob o nome explícito `github-pages` e usa o mesmo `artifact_name` em `actions/deploy-pages@v4`. O job de publicação recebe `contents: read`, `pages: write` e `id-token: write`; o build recebe apenas leitura do código e da configuração do Pages.
+
+Um HTTP 404 ao criar o deployment não prova que `dist/` está incorreto: também pode ocorrer quando o site Pages não foi ativado ou a origem de publicação não está configurada corretamente. Verifique **Settings → Pages → Build and deployment → Source → GitHub Actions**. A ação `configure-pages` verifica o site; ela não cria nem ativa automaticamente o Pages com o token padrão deste workflow. Caso o GitHub não ofereça Pages para o repositório, confira o plano e as políticas da organização. Não altere a visibilidade do código sem avaliar essa decisão.
+
+Após a correção, execute **Actions → Publicar HabitKit no GitHub Pages → Run workflow → Branch: main → Run workflow**. Use uma execução nova: **Re-run jobs** em uma execução antiga reutiliza o commit antigo e não testa a versão corrigida. O push na `main` também dispara uma execução nova automaticamente.
+
+Na execução nova, confira:
+
+- **Verificar configuração do GitHub Pages** concluído.
+- **Verificar arquivos de produção** listando `dist/index.html`, arquivos de `dist/src/`, manifesto, service worker e ícone.
+- **Enviar artefato do site** concluído e um artefato chamado **github-pages** na página da execução.
+- O job **deploy** concluído no mesmo workflow; ele depende do build dessa execução, sem caminhos locais entre jobs.
+
+Se o artefato tiver expirado ou estiver ausente, execute novamente o workflow inteiro na `main`, não somente o deploy. Se o deploy continuar retornando 404 mesmo com esses passos, compartilhe o log completo do job e a configuração exibida em Settings → Pages, sem tokens ou outros segredos, para distinguir permissão, política do repositório e configuração do site.
