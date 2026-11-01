@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in index.html manifest.webmanifest sw.js src/app.js src/model.js src/style.css public/logo.png; do
+          for file in index.html manifest.webmanifest sw.js src/app.js src/model.js src/alter-ego.js src/style.css public/logo.png; do
             test -s "dist/$file" || { echo "::error::Arquivo ausente ou vazio: dist/$file"; exit 1; }
           done
           find dist -type f -print

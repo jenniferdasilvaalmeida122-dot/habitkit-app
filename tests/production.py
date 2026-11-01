@@ -2,7 +2,7 @@
 Uses an intercepted HTTPS test origin; this does not claim a live deployment.
 """
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 from urllib.parse import urlparse, unquote
 import json
 
@@ -33,9 +33,9 @@ with sync_playwright() as p:
     page.locator('input[name=name]').fill('Produção verificada')
     page.get_by_role('button',name='Criar hábito',exact=True).click()
     page.locator('.complete-button').click()
-    assert page.locator('.complete-button.completed').count()==1
+    expect(page.locator('.complete-button.completed')).to_have_count(1)
     page.reload()
-    assert page.locator('.complete-button.completed').count()==1
+    expect(page.locator('.complete-button.completed')).to_have_count(1)
     # Verify the reference layouts with real interactions and isolated test data.
     page.get_by_role('button',name='Adicionar hábito',exact=True).click()
     page.locator('input[name=name]').fill('Beber água')
@@ -45,25 +45,25 @@ with sync_playwright() as p:
     page.locator('input[name=color][value="#20a4df"]').check()
     page.get_by_role('button',name='Criar hábito',exact=True).click()
     page.get_by_role('button',name='Últimos 5 dias',exact=True).click()
-    assert page.locator('.recent-row').count()==2
-    assert page.locator('.recent-day').count()==10
+    expect(page.locator('.recent-row')).to_have_count(2)
+    expect(page.locator('.recent-day')).to_have_count(10)
     page.locator('.recent-row').last.locator('.recent-day').last.click()
     page.locator('input[name=value]').fill('4')
     page.get_by_role('button',name='Salvar registro',exact=True).click()
     assert page.locator('.recent-row').last.locator('.recent-day').last.inner_text()=='4'
     page.screenshot(path='/tmp/habitkit-five-days.png',full_page=True)
     page.get_by_role('button',name='Calendário mensal',exact=True).click()
-    assert page.locator('.mini-month').count()==2
+    expect(page.locator('.mini-month')).to_have_count(2)
     page.locator('.mini-month').last.locator('.month-cell.today').click()
     page.locator('input[name=value]').fill('8')
     page.get_by_role('button',name='Salvar registro',exact=True).click()
-    assert page.locator('.mini-month .month-cell.today.filled').count()==2
+    expect(page.locator('.mini-month .month-cell.today.filled')).to_have_count(2)
     page.get_by_role('button',name='Calendário mensal: mês anterior',exact=True).click()
     page.get_by_role('button',name='Calendário mensal: próximo mês',exact=True).click()
     assert page.get_by_role('button',name='Calendário mensal: próximo mês',exact=True).is_disabled()
     page.screenshot(path='/tmp/habitkit-month-cards.png',full_page=True)
     page.get_by_role('button',name='Cartões',exact=True).click()
-    assert page.locator('.heatmap').count()==2
+    expect(page.locator('.heatmap')).to_have_count(2)
     page.get_by_role('button',name='Opções de visualização',exact=True).click()
     page.get_by_role('button',name='Reorganizar hábitos',exact=True).click()
     page.get_by_role('button',name='Mover Produção verificada para baixo',exact=True).click()
@@ -87,22 +87,22 @@ with sync_playwright() as p:
     # The internal page stays minimal while retaining notes, stats and controls.
     page.locator('.habit-title').first.click()
     assert page.locator('.detail-identity h1').inner_text()=='Beber água'
-    assert page.locator('.tabbar').count()==0
+    expect(page.locator('.tabbar')).to_have_count(0)
     assert not page.locator('.habit-statistics').evaluate('(el) => el.open')
     page.get_by_role('button',name='Anotar hoje',exact=True).click()
     page.locator('textarea[name=note]').fill('Anotação na tela simplificada.')
     page.get_by_role('button',name='Salvar registro',exact=True).click()
-    assert page.locator('.detail-notes .note-row').count()==1
+    expect(page.locator('.detail-notes .note-row')).to_have_count(1)
     page.get_by_role('button',name='Mês anterior',exact=True).click()
     page.get_by_role('button',name='Hoje',exact=True).click()
-    assert page.locator('.calendar-days .is-today').count()==1
+    expect(page.locator('.calendar-days .is-today')).to_have_count(1)
     page.locator('.habit-statistics summary').click()
-    assert page.locator('.metric').count()==4
+    expect(page.locator('.metric')).to_have_count(4)
     page.locator('.habit-statistics summary').click()
     page.get_by_role('button',name='Editar',exact=True).click()
     page.locator('input[name=description]').fill('Cuidar da hidratação.')
     page.get_by_role('button',name='Salvar alterações',exact=True).click()
-    assert page.locator('.detail-identity p').inner_text()=='Cuidar da hidratação.'
+    page.wait_for_function("document.querySelector('.detail-identity p')?.textContent === 'Cuidar da hidratação.'")
     page.get_by_role('button',name='Opções do hábito',exact=True).click()
     assert page.get_by_role('button',name='Compartilhar progresso',exact=True).is_visible()
     page.get_by_role('button',name='Fechar',exact=True).click()
@@ -115,7 +115,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='Ajustes',exact=True).click()
     assert page.locator('.settings-profile .brand-logo').evaluate('(img) => img.complete && img.naturalWidth === 1254')
     assert not errors,errors
-    for asset in ['index.html','src/app.js','src/model.js','src/style.css','public/logo.png']:
+    for asset in ['index.html','src/app.js','src/model.js','src/alter-ego.js','src/style.css','public/logo.png']:
         assert asset in requests, f'Not exercised: {asset}'
     manifest=json.loads((ROOT/'manifest.webmanifest').read_text())
     assert manifest['start_url']=='./' and manifest['scope']=='./'

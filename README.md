@@ -108,3 +108,35 @@ Na execução nova, confira:
 Se o artefato tiver expirado ou estiver ausente, execute novamente o workflow inteiro na `main`, não somente o deploy. Se o deploy continuar retornando 404 mesmo com esses passos, compartilhe o log completo do job e a configuração exibida em Settings → Pages, sem tokens ou outros segredos, para distinguir permissão, política do repositório e configuração do site.
 
 A tela interna de cada hábito segue uma composição reduzida: ícone, nome e descrição opcional, histórico anual com rolagem própria, sequência/meta, calendário e notas. Estatísticas e evolução permanecem em uma seção recolhível; registro de hoje, compartilhamento e arquivamento ficam no menu de opções. O calendário oferece seleção de mês, retorno a hoje e edição dos dias. Nenhum registro ou cor existente é removido por essa mudança visual.
+
+
+## My Alter Ego — antes de Ajustes
+
+A aba **Alter Ego** fica entre Estatísticas e Ajustes. O módulo acrescenta identidade e moodboard sem trocar o sistema de hábitos existente. A Home ganha somente um resumo discreto depois que o usuário define um nome para sua identidade.
+
+- Identidade em quatro etapas: nome, descrição, frase de identidade, características por categoria e personalizadas, valores e dez reflexões opcionais. Os rascunhos são salvos automaticamente.
+- Vários moodboards com título, fundo personalizado e categorias. Imagens PNG/JPG/WebP/GIF da galeria, frases, afirmações, palavras e elementos decorativos são elementos reais do editor.
+- Movimento por mouse/toque, alça de redimensionamento, campos precisos de posição/tamanho, rotação, tipografia, destaque, borda, cantos, cores, enquadramento e ordem de camadas. Setas do teclado movem o elemento selecionado; Shift reduz o passo.
+- Visualização sem controles de edição, tela cheia, duplicação, exclusão confirmada, capa da identidade, exportação PNG de 1600 × 2000 e compartilhamento de imagem quando suportado (download como alternativa).
+- Carta da versão futura com salvamento automático, perguntas de apoio e revisão em data livre ou em 30/60/90 dias. O aviso de revisão aparece ao abrir a seção; não agenda push com o app fechado.
+- Comportamentos por característica, com vínculo aos IDs dos hábitos existentes; nenhuma segunda lista de hábitos é criada. Sugestões só criam um hábito quando o usuário abre e confirma o formulário original.
+- Como o aplicativo anterior não tinha módulo de metas, o Alter Ego acrescenta metas de identidade com nome, descrição, categoria, prazo, característica, comportamento de origem e hábitos relacionados. O progresso é manual ou calculado pela taxa média dos hábitos vinculados. Excluir um comportamento não exclui hábitos ou metas.
+
+### Persistência, backup e limites
+
+O documento do Alter Ego e os bytes das imagens ficam em **IndexedDB**, banco `habitkit-identity`, store `workspace`. Imagens não são links temporários ou somente estado de tela. Hábitos continuam em `localStorage`. Nenhum serviço externo recebe fotos ou textos. A identidade permite até 30 painéis, 100 elementos por painel e 90 MB por workspace; uploads aceitam até 8 MB por imagem.
+
+O backup completo em Ajustes inclui hábitos e a identidade com imagens, carta, comportamentos e metas. O módulo também tem exportação/restauração independente. Arquivos são validados antes de substituir dados e a restauração exige confirmação; backups antigos somente de hábitos preservam a identidade atual. O limite de importação é 100 MB. O exportador de imagens usa apenas arquivos locais do usuário, sem buscar referências externas.
+
+**Não há autenticação, banco online nem sincronização entre dispositivos.** Os dados são isolados por origem e perfil do navegador, não por contas dentro do mesmo perfil. Para transferir do Mac para o celular, exporte e restaure um backup no outro dispositivo. Para sincronização automática e isolamento por conta, é necessário configurar autenticação, banco com regras de acesso e armazenamento de imagens em um serviço online; credenciais não devem ser colocadas no código público. Limpar dados do site também apaga o IndexedDB: mantenha backups externos.
+
+Testes adicionais do módulo, sem abrir localhost:
+
+```sh
+npm test
+npm run build
+python3 tests/alter-ego-browser.py
+python3 tests/production.py
+```
+
+O teste do Alter Ego usa um perfil isolado e cobre navegação antes de Ajustes, onboarding, valores personalizados, capa e imagens persistentes, movimento real por toque, redimensionamento, edição/camadas/categorias, PNG, tela cheia, duplicação, exclusão, carta, hábitos vinculados, metas, larguras de 320 a 1440 px e restauração de backups. Os dados de teste não são inseridos no perfil de usuários.
