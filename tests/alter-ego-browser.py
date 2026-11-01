@@ -42,6 +42,8 @@ with sync_playwright() as p:
     expect(page.locator('.ir-name h1')).to_have_text('Minha versão confiante')
     expect(page.locator('.ir-cover')).to_be_visible()
     assert 'Curiosa' in page.locator('.ir-traits').inner_text()
+    expect(action('Abrir Moodboard')).to_be_visible()
+    action('Abrir Moodboard').click()
     expect(page.locator('.ae-canvas')).to_be_visible()
     # No old dashboard, wizard, letters or parallel goal/habit creation.
     assert page.locator('.ae-sections,.ae-progress,.ae-letter,.ae-cut-masonry').count()==0
@@ -120,6 +122,7 @@ with sync_playwright() as p:
     backup='/tmp/identity-rebuilt-backup.json';d.value.save_as(backup)
     bundle=json.loads(Path(backup).read_text());assert len(bundle['boards'][0]['elements'])==2
     assert bundle['boards'][0]['elements'][1]['src']==original_src
+    action('Abrir Moodboard').click()
     action('Opções do painel').click();action('Duplicar painel').click()
     expect(page.locator('#ae-board-select option')).to_have_count(2)
     page.locator('.ae-element').last.click();action('Remover').click();action('Confirmar').click()
@@ -136,6 +139,11 @@ with sync_playwright() as p:
     for width in [320,390,768,1440]:
         page.set_viewport_size({'width':width,'height':900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'),width
+    action('Abrir Moodboard').click()
+    for width in [320,390,768,1440]:
+        page.set_viewport_size({'width':width,'height':900})
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'),width
+    action('Voltar à identidade').click()
     action('Voltar aos hábitos').click();expect(page.locator('.habit-card')).to_have_count(1)
     action('Ajustes').click()
     with page.expect_download() as d:page.get_by_role('button',name='Exportar backup',exact=False).click()
@@ -143,5 +151,5 @@ with sync_playwright() as p:
     assert saved['alterEgo']['identity']['name']=='Minha nova fase' and len(saved['habits'])==1
     assert len(saved['alterEgo']['goals'])==1 and saved['alterEgo']['letter']['content']=='Carta legada preservada.'
     assert not errors,errors
-    print(json.dumps({'alter_ego_rebuild':'passed','checks':['single identity form and photo','traits and custom traits','reference cut sheets','real freeform canvas','mouse and touch movement','resize and rotate','text styling','reversible image crop','layer order','categories','background','fullscreen','PNG export','reopen without losing images','edit and delete','existing habit and goal links','legacy data preservation','complete backup','responsive widths'],'browser_errors':errors}))
+    print(json.dumps({'alter_ego_rebuild':'passed','checks':['identity entry and focused editor','single identity form and photo','traits and custom traits','reference cut sheets','real freeform canvas','mouse and touch movement','resize and rotate','text styling','reversible image crop','layer order','categories','background','fullscreen','PNG export','reopen without losing images','edit and delete','existing habit and goal links','legacy data preservation','complete backup','responsive widths'],'browser_errors':errors}))
     browser.close()

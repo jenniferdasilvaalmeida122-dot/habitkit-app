@@ -112,7 +112,7 @@ A tela interna de cada hábito segue uma composição reduzida: ícone, nome e d
 
 ## Alter Ego — reconstrução conforme a referência
 
-A aba **Alter Ego** permanece antes de **Ajustes**. A experiência anterior com etapas, páginas e indicadores foi substituída por uma área única: foto principal, nome, descrição, características e o moodboard livre. Criar e editar a identidade usa um formulário direto, com foto da galeria e características personalizadas.
+A aba **Alter Ego** permanece antes de **Ajustes**. A experiência anterior com etapas, páginas e indicadores foi substituída por uma entrada com foto principal, nome, descrição, características e prévia da composição. O botão Abrir Moodboard leva ao editor livre, organizado como a referência, com cabeçalho, composição visual, categorias e recortes. Criar e editar a identidade usa um formulário direto, com foto da galeria e características personalizadas.
 
 O formulário **Novo recorte** segue a referência: categoria, seleção Imagem/Texto, prévia da foto, legenda curta ou frase principal, detalhe opcional e ação **Colar no moodboard**. O painel não é uma galeria: imagens e textos são elementos posicionados livremente, que podem se sobrepor.
 
