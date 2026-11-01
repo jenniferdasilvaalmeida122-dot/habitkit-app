@@ -84,6 +84,31 @@ with sync_playwright() as p:
     assert page.locator('html').get_attribute('data-theme')=='dark'
     page.set_viewport_size({'width':390,'height':844})
     page.screenshot(path='/tmp/habitkit-colored-dark.png',full_page=True)
+    # The internal page stays minimal while retaining notes, stats and controls.
+    page.locator('.habit-title').first.click()
+    assert page.locator('.detail-identity h1').inner_text()=='Beber água'
+    assert page.locator('.tabbar').count()==0
+    assert not page.locator('.habit-statistics').evaluate('(el) => el.open')
+    page.get_by_role('button',name='Anotar hoje',exact=True).click()
+    page.locator('textarea[name=note]').fill('Anotação na tela simplificada.')
+    page.get_by_role('button',name='Salvar registro',exact=True).click()
+    assert page.locator('.detail-notes .note-row').count()==1
+    page.get_by_role('button',name='Mês anterior',exact=True).click()
+    page.get_by_role('button',name='Hoje',exact=True).click()
+    assert page.locator('.calendar-days .is-today').count()==1
+    page.locator('.habit-statistics summary').click()
+    assert page.locator('.metric').count()==4
+    page.locator('.habit-statistics summary').click()
+    page.get_by_role('button',name='Editar',exact=True).click()
+    page.locator('input[name=description]').fill('Cuidar da hidratação.')
+    page.get_by_role('button',name='Salvar alterações',exact=True).click()
+    assert page.locator('.detail-identity p').inner_text()=='Cuidar da hidratação.'
+    page.get_by_role('button',name='Opções do hábito',exact=True).click()
+    assert page.get_by_role('button',name='Compartilhar progresso',exact=True).is_visible()
+    page.get_by_role('button',name='Fechar',exact=True).click()
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.screenshot(path='/tmp/habitkit-minimal-detail-dark.png',full_page=True)
+    page.get_by_role('button',name='Voltar aos hábitos',exact=True).click()
     for width in [390,1440]:
         page.set_viewport_size({'width':width,'height':900})
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -95,5 +120,5 @@ with sync_playwright() as p:
     manifest=json.loads((ROOT/'manifest.webmanifest').read_text())
     assert manifest['start_url']=='./' and manifest['scope']=='./'
     assert (ROOT / manifest['icons'][0]['src']).is_file()
-    print(json.dumps({'production_build':'passed','base_path':'/habitkit-app/','checks':['built assets','create habit','completion','persistence','mobile and desktop','manifest paths','five-day table','monthly cards','partial progress','historical editing','month navigation','reorder persistence','dark theme'],'browser_errors':errors}))
+    print(json.dumps({'production_build':'passed','base_path':'/habitkit-app/','checks':['built assets','create habit','completion','persistence','mobile and desktop','manifest paths','five-day table','monthly cards','partial progress','historical editing','month navigation','reorder persistence','dark theme','minimal habit details','notes and description','secondary statistics and actions'],'browser_errors':errors}))
     browser.close()

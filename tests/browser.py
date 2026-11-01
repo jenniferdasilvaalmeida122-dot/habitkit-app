@@ -26,6 +26,7 @@ with sync_playwright() as p:
     assert page.locator('.complete-button.completed').count()==0
     page.locator('.complete-button').click()
     page.locator('.habit-title').click()
+    page.locator('.habit-statistics summary').click()
     assert page.locator('.metric').first.inner_text().startswith('1')
     action(page,'Anotar hoje').click()
     page.locator('textarea').fill('Um começo tranquilo.')
@@ -45,7 +46,7 @@ with sync_playwright() as p:
     page.locator('input[name=color][value="#6664ee"]').check()
     action(page,'Salvar alterações').click()
     assert page.locator('.detail-page').get_attribute('style')=='--habit:#6664ee'
-    action(page,'Hábitos').first.click()
+    action(page,'Voltar aos hábitos').click()
     action(page,'Adicionar hábito').click()
     page.locator('input[name=name]').fill('Beber água')
     page.locator('select[name=type]').select_option('count')
@@ -113,6 +114,7 @@ with sync_playwright() as p:
     assert page.evaluate('JSON.parse(localStorage.habitkit).habits.length')==3
     action(page,'Hábitos').click()
     page.locator('.habit-title').first.click()
+    action(page,'Opções do hábito').click()
     action(page,'Arquivar').click()
     assert page.locator('.habit-card').count()==2
     action(page,'Ajustes').click()

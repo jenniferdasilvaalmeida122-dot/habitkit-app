@@ -106,3 +106,5 @@ Na execução nova, confira:
 - O job **deploy** concluído no mesmo workflow; ele depende do build dessa execução, sem caminhos locais entre jobs.
 
 Se o artefato tiver expirado ou estiver ausente, execute novamente o workflow inteiro na `main`, não somente o deploy. Se o deploy continuar retornando 404 mesmo com esses passos, compartilhe o log completo do job e a configuração exibida em Settings → Pages, sem tokens ou outros segredos, para distinguir permissão, política do repositório e configuração do site.
+
+A tela interna de cada hábito segue uma composição reduzida: ícone, nome e descrição opcional, histórico anual com rolagem própria, sequência/meta, calendário e notas. Estatísticas e evolução permanecem em uma seção recolhível; registro de hoje, compartilhamento e arquivamento ficam no menu de opções. O calendário oferece seleção de mês, retorno a hoje e edição dos dias. Nenhum registro ou cor existente é removido por essa mudança visual.
