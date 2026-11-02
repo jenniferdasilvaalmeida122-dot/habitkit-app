@@ -67,9 +67,9 @@
 
 /* Dream favorites and details */
 .ir-mural-card{position:relative}
-.ir-favorite-tip{display:flex;align-items:center;gap:14px;padding:20px;border-radius:22px;background:#edfcfc;color:#52606b;line-height:1.6;margin:16px 0 24px}
-.ir-favorite-tip>span{color:#16b9ba;font-size:30px}
-.ir-mural-card .ir-favorite{position:absolute;right:10px;top:10px;z-index:2;width:42px;height:42px;border:0;border-radius:50%;background:#fffdf6;color:#85867f;font-size:30px;display:grid;place-items:center;padding:0}
+.ir-favorite-tip{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:#edfcfc;color:#52606b;font-size:12px;line-height:1.45;margin:10px 0 16px}
+.ir-favorite-tip>span{color:#16b9ba;font-size:18px;flex-shrink:0}
+.ir-mural-card .ir-favorite{position:absolute;right:10px;top:10px;z-index:2;width:32px;height:32px;border:0;border-radius:50%;background:#fffdf6;color:#85867f;font-size:21px;display:grid;place-items:center;padding:0}
 .ir-mural-card .ir-favorite[aria-pressed=true]{color:#0b9293;background:#d3f7f5}
 .ir-dream-badge{position:absolute;left:10px;top:14px;z-index:1;background:#fffdf6;color:#515b68;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;max-width:calc(100% - 66px)}
 .ir-favorite-detail{display:flex;gap:12px;align-items:center;background:#c8f4f3;border:1px solid #15babe;border-radius:20px;padding:18px;color:#164449;margin:20px 0;cursor:pointer}
