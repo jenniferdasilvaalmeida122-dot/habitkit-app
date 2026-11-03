@@ -47,6 +47,8 @@ with sync_playwright() as p:
     page.locator('[data-ego=feed-cut]').first.click()
     expect(page.get_by_role('heading',name='Detalhes do Sonho')).to_be_visible()
     page.locator('[name=detail]').fill('Meu motivo pessoal')
+    page.get_by_label('Que hábitos me aproximam disso?',exact=True).fill('Ler diariamente')
+    page.get_by_label('Qual pequena atitude posso começar hoje?',exact=True).fill('Ler uma página hoje')
     page.get_by_text('Em construção',exact=True).click()
     page.get_by_role('button',name='✓ Salvar',exact=True).click()
     expect(page.locator('.ir-dream-badge').first).to_have_text('Em construção')
@@ -55,6 +57,8 @@ with sync_playwright() as p:
     expect(page.locator('.ir-favorite[aria-pressed=true]')).to_have_count(3)
     page.locator('[data-ego=feed-cut]').first.click()
     expect(page.locator('[name=detail]')).to_have_value('Meu motivo pessoal')
+    expect(page.locator('[name=dreamHabits]')).to_have_value('Ler diariamente')
+    expect(page.locator('[name=firstStep]')).to_have_value('Ler uma página hoje')
     expect(page.locator('.ir-dream-details .ir-dream-photo')).to_be_visible()
     assert page.locator('.ir-dream-details .ir-cut-types,.ir-dream-details .ir-destinations,.ir-dream-details .ir-upload-crop').count()==0
     assert 'scale(1.5)' in page.locator('.ir-dream-photo img').get_attribute('style')
