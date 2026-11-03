@@ -36,10 +36,10 @@ with sync_playwright() as p:
     action('Novo recorte').click();action('Escolher uma imagem').click()
     page.locator('#ir-cut-file').set_input_files(ROOT/'public/logo.png')
     field('content').fill('Minha referência do vídeo');action('✓ Colar no moodboard').click()
+    page.get_by_role('button',name='Abrir pasta Aparência',exact=True).click()
     expect(page.locator('.ir-mural-card')).to_have_count(1)
     action('Adicionar ao moodboard').click();action('Texto').click()
     field('content').fill('Eu sou mágica.');field('detail').fill('A vida que ela está construindo.')
-    page.locator('.ir-destinations [data-category="Afirmações"]').click()
     action('✓ Colar no moodboard').click()
     expect(page.locator('.ir-mural-card')).to_have_count(2)
     assert page.locator('.ir-mural-grid').evaluate("el=>getComputedStyle(el).columnCount")=='2'
@@ -59,6 +59,7 @@ with sync_playwright() as p:
     expect(page.locator('.ir-mural-card')).to_have_count(0)
     action('Editar composição').click()
     expect(page.locator('.ae-canvas')).to_be_visible()
+    page.locator('.ir-board .ir-categories [data-category=all]').click()
     # No old dashboard, wizard, letters or parallel goal/habit creation.
     assert page.locator('.ae-sections,.ae-progress,.ae-letter,.ae-cut-masonry').count()==0
     action('Novo recorte').click();action('Texto',).click()
@@ -129,7 +130,10 @@ with sync_playwright() as p:
     action('Voltar aos hábitos').click();page.reload()
     assert page.locator('.identity-home').count()==0
     action('Vision Board').click()
-    expect(page.locator('.ir-mural-card')).to_have_count(2)
+    page.locator('[data-ego=folder-open]').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(1)
+    page.locator('.ir-reference-mural nav [data-category="Personalidade e mentalidade"]').click()
+    expect(page.locator('.ir-mural-card')).to_have_count(1)
     expect(page.locator('.ir-video-hero h1')).to_have_text('Meus sonhos')
     assert page.locator('#ir-identity-form,.ir-profile,.ir-name,.ir-link-picker').count()==0
     with page.expect_download() as d:action('Exportar backup').click()
@@ -139,6 +143,7 @@ with sync_playwright() as p:
     action('Opções do painel').click();action('Duplicar painel').click()
     expect(page.locator('#ae-board-select option')).to_have_count(2)
     action('Editar composição').click()
+    page.locator('.ir-board .ir-categories [data-category=all]').click()
     page.locator('.ae-element').last.click();action('Remover').click();action('Confirmar').click()
     expect(page.locator('.ae-element')).to_have_count(1)
     # Restore does not erase existing habits; legacy workspace fields also survive.
@@ -146,7 +151,7 @@ with sync_playwright() as p:
     bundle['goals']=[{'id':'goal-existing','name':'Meta existente','description':'Uma meta anterior.','category':'Pessoal','trait':'Confiante','due':'2027-01-01','progress':25,'habitIds':[]}]
     bundle['identity']['name']='Identidade antiga preservada'
     page.locator('#ae-import-file').set_input_files({'name':'legacy-workspace.json','mimeType':'application/json','buffer':json.dumps(bundle).encode()})
-    action('Confirmar').click();expect(page.locator('.ir-mural-card')).to_have_count(2)
+    action('Confirmar').click();page.locator('[data-ego=folder-open]').click();expect(page.locator('.ir-mural-card')).to_have_count(1)
     assert snapshot()['letter']['content']=='Carta legada preservada.'
     assert snapshot()['identity']['name']=='Identidade antiga preservada'
     expect(page.locator('.ir-video-hero h1')).to_have_text('Meus sonhos')
