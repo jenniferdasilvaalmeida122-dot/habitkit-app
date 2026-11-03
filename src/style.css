@@ -87,3 +87,10 @@
 
 /* Keep the transparent logo free of any surrounding tile. */
 .brand-mark,.brand-logo,.desktop-brand .brand-logo,.settings-profile .brand-mark,.settings-profile .brand-logo{background:transparent;border:0;border-radius:0;box-shadow:none}
+
+/* Favorite photos form the home cover, with the logo in front. */
+.ir-cover-header{position:relative;margin:0 -32px 24px;padding-bottom:34px}.ir-home-dreams.ir-cover-collage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,1fr);gap:3px;height:280px;margin:0;overflow:hidden;background:var(--soft)}.ir-cover-collage figure{margin:0;min-width:0;min-height:0;overflow:hidden}.ir-cover-collage figure:first-child{grid-row:span 2}.ir-cover-collage img{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}.ir-cover-collage[data-count="1"]{grid-template-columns:1fr}.ir-cover-collage[data-count="2"]{grid-template-columns:repeat(2,1fr)}.ir-cover-collage[data-count="2"] figure{grid-row:span 2}.ir-cover-collage[data-count="3"] figure{grid-row:span 2}.ir-cover-collage[data-count="4"]{grid-template-columns:repeat(2,1fr)}.ir-cover-collage[data-count="4"] figure:first-child{grid-row:auto}.ir-cover-header .desktop-brand{position:absolute;bottom:0;left:0;right:0;justify-content:center;height:105px;padding:0;margin:0;z-index:1}.ir-cover-header .desktop-brand>span{display:none}.ir-cover-header .desktop-brand .brand-logo{width:112px;height:112px;filter:drop-shadow(0 3px 5px #0002)}
+@media(max-width:600px){.ir-cover-header{margin-left:-20px;margin-right:-20px}.ir-home-dreams.ir-cover-collage{height:245px}.ir-cover-header .desktop-brand .brand-logo{width:96px;height:96px}.ir-cover-header .desktop-brand{height:96px}}
+
+@media(min-width:1000px){.ir-cover-header{margin-left:-40px;margin-right:-40px}}
+@media(max-width:360px){.ir-cover-header{margin-left:-14px;margin-right:-14px}}
