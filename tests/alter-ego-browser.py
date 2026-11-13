@@ -104,7 +104,7 @@ with sync_playwright() as p:
     stored=snapshot()['boards'][0]['elements'][1]
     assert stored['crop']=={'x':70,'y':30,'zoom':2} and stored['w']==stored['h']
     original_src=stored['src']
-    assert original_src.startswith('data:image/png;base64,')
+    assert re.match(r'data:image/(png|webp);base64,',original_src)
     action('Girar 15°').click();action('À frente').click();action('Atrás').click()
     action('Editar').last.click();field('content').fill('Minha referência editada');action('✓ Salvar recorte').click()
     expect(page.locator('.ae-element.selected img')).to_have_attribute('alt','Minha referência editada')

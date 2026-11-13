@@ -1,10 +1,13 @@
+import {validateAlterEgoBackup,DREAM_STATUSES} from './vision-validation.js';
+export {validateAlterEgoBackup} from './vision-validation.js';
+import {visionDatabase,markAccountChanged} from './account-store.js';
 // Identity and freeform moodboard. The existing IndexedDB document is preserved.
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uuid=()=>crypto.randomUUID();
 const VIDEO_CATEGORIES=['Visão','Looks','Maquiagem','Acessórios','Hábitos','Afirmações','Características','Referências','Comportamento','Relações'];
 const CATEGORIES=['Aparência','Corpo e saúde','Carreira e dinheiro','Estilo de vida','Casa e viagens','Personalidade e mentalidade','Relacionamentos','Espiritualidade'];
 const LEGACY=['Aparência e autocuidado','Carreira e prosperidade','Mentalidade e personalidade'];
-const DREAM_STATUSES=['Decidido','Em construção','Chegando','Conquistado'];
+
 const favorites=()=>data.boards.flatMap(b=>b.elements).filter(e=>e.type==='image'&&e.favorite);
 const FONTS=['Georgia,serif','system-ui,sans-serif','monospace','cursive'];
 const empty=()=>({version:1,identity:null,boards:[],behaviors:[],goals:[],letter:{content:'',reviewDate:'',updatedAt:''},categories:[...CATEGORIES]});
@@ -14,7 +17,7 @@ let data=empty(),db=null,storageError='',rawStored=null,queue=Promise.resolve(),
 let boardLayout='mural',holdTimer=null,heldCut=null;
 let host=null,api={},currentBoard=null,category='all',selected=null,editing=true,full=false,cutDraft=null,pendingImport=null,drag=null;
 try{
- db=await new Promise((resolve,reject)=>{const r=indexedDB.open('habitkit-identity',1);r.onupgradeneeded=()=>r.result.createObjectStore('workspace');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error('Banco bloqueado por outra aba.'))});
+ db=await new Promise((resolve,reject)=>{const r=indexedDB.open(visionDatabase(),1);r.onupgradeneeded=()=>r.result.createObjectStore('workspace');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(Error('Banco bloqueado por outra aba.'))});
  rawStored=await new Promise((resolve,reject)=>{const r=db.transaction('workspace').objectStore('workspace').get('current');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
  if(rawStored)data=validateAlterEgoBackup(rawStored);
 }catch{storageError='Não foi possível abrir os dados do Vision Board. Seus hábitos continuam disponíveis. Exporte os dados originais antes de tentar recuperar.'}
@@ -24,7 +27,7 @@ function persist(){
  const snapshot=structuredClone(data);if(JSON.stringify(snapshot).length>90*1024*1024){notify('Limite de 90 MB. Exporte um backup antes de remover recortes antigos.');return Promise.reject(Error('Limite do painel.'))}
  if(snapshot.identity)snapshot.identity.updatedAt=new Date().toISOString();
  const job=queue.catch(()=>{}).then(()=>new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readwrite');tx.objectStore('workspace').put(snapshot,'current');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error)}));queue=job;
- job.then(()=>status('Salvo neste dispositivo'),()=>{status('Não salvo — exporte um backup');notify('Não foi possível salvar. O armazenamento pode estar cheio. Exporte um backup.')});return job;
+ job.then(()=>{markAccountChanged();status('Salvo neste dispositivo')},()=>{status('Não salvo — exporte um backup');notify('Não foi possível salvar. O armazenamento pode estar cheio. Exporte um backup.')});return job;
 }
 function status(text){const e=host?.querySelector('#ae-save-status');if(e)e.textContent=text}
 async function change(fn){const previous=structuredClone(data);try{fn();await persist();draw();api.onUpdate?.();return true}catch(err){data=previous;notify(err?.message||'Não foi possível salvar.');draw();return false}}
@@ -149,16 +152,3 @@ async function renderImage(){
 }
 export async function exportAlterEgo(){if(timer){clearTimeout(timer);timer=null;if(!storageError)await persist().catch(()=>{})}await queue.catch(()=>{});return structuredClone(storageError&&rawStored?rawStored:data)}
 export async function restoreAlterEgo(value){const next=validateAlterEgoBackup(value),previous=data,sources=new Set([next.identity?.cover,...next.boards.flatMap(b=>b.elements.filter(e=>e.type==='image').map(e=>e.src))].filter(Boolean));for(const src of sources)await loadImage(src);clearTimeout(timer);timer=null;data=next;try{await persist()}catch(err){data=previous;throw err}selected=null;currentBoard=null;category='all';boardLayout='mural';if(host?.isConnected)draw()}
-export function validateAlterEgoBackup(value){
- const fail=()=>{throw Error('Backup do Vision Board inválido.')},text=(v,max=3000)=>typeof v==='string'&&v.length<=max,hex=v=>/^#[0-9a-f]{6}$/i.test(v),safeId=v=>text(v,100)&&/^[a-zA-Z0-9_-]+$/.test(v),date=v=>!v||typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!isNaN(new Date(v+'T12:00:00').getTime()),image=v=>!v||text(v,12*1024*1024)&&/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v);
- if(!value||value.version!==1||!Array.isArray(value.boards)||value.boards.length>30||!Array.isArray(value.behaviors)||!Array.isArray(value.goals)||!Array.isArray(value.categories)||!value.letter)fail();
- if(value.categories.length>100||value.categories.some(c=>!text(c,60)))fail();
- const i=value.identity;if(i&&(!safeId(i.id)||!text(i.name,80)||!text(i.description)||!text(i.statement,500)||!image(i.cover)||!Array.isArray(i.traits)||!Array.isArray(i.values)||i.traits.length>100||i.values.length>100||[...i.traits,...i.values].some(v=>!text(v,300))||!i.reflections||Object.entries(i.reflections).some(([k,v])=>!/^\d$/.test(k)||!text(v,2000))))fail();
- if(i?.links&&(!Array.isArray(i.links)||i.links.length>100||i.links.some(l=>!text(l.trait,300)||!Array.isArray(l.habitIds)||!Array.isArray(l.goalIds)||[...l.habitIds,...l.goalIds].some(id=>!safeId(id)))))fail();
- if(!i&&(value.boards.length||value.behaviors.length||value.goals.length))fail();
- const boardIds=new Set();
- for(const b of value.boards){if(!safeId(b.id)||boardIds.has(b.id)||!text(b.title,100)||!hex(b.background)||!Array.isArray(b.elements)||b.elements.length>100)fail();boardIds.add(b.id);const elements=new Set();for(const e of b.elements){if(!safeId(e.id)||elements.has(e.id)||!['image','text','affirmation','word','decoration'].includes(e.type)||!text(e.content)||!image(e.src)||e.type==='image'&&!e.src||!hex(e.color)||!(e.background==='transparent'||hex(e.background))||!['Georgia,serif','system-ui,sans-serif','monospace','cursive'].includes(e.font)||!['contain','cover'].includes(e.fit)||typeof e.bold!=='boolean')fail();for(const [key,min,max] of [['x',0,800],['y',0,1000],['w',1,800],['h',1,1000],['rotation',-180,180],['z',-100000,100000],['radius',0,80],['border',0,12],['fontSize',12,120]])if(!Number.isFinite(e[key])||e[key]<min||e[key]>max)fail();if(!text(e.category,60)||e.detail!==undefined&&!text(e.detail,2000)||['dreamHabits','firstStep'].some(key=>e[key]!==undefined&&!text(e[key],2000))||e.crop&&(!Number.isFinite(e.crop.x)||e.crop.x<0||e.crop.x>100||!Number.isFinite(e.crop.y)||e.crop.y<0||e.crop.y>100||!Number.isFinite(e.crop.zoom)||e.crop.zoom<1||e.crop.zoom>4))fail();if(e.favorite!==undefined&&typeof e.favorite!=='boolean'||e.dreamStatus!==undefined&&!DREAM_STATUSES.includes(e.dreamStatus)||e.createdAt!==undefined&&(typeof e.createdAt!=='string'||!Number.isFinite(Date.parse(e.createdAt))))fail();elements.add(e.id)}}
- if(value.boards.flatMap(b=>b.elements).filter(e=>e.favorite).length>5)fail();
- if(value.behaviors.length>1000||value.goals.length>1000)fail();const behaviorIds=new Set(),goalIds=new Set();for(const b of value.behaviors){if(!safeId(b.id)||behaviorIds.has(b.id)||!text(b.name,180)||!text(b.description,2000)||!text(b.trait,300)||!text(b.habitId,100))fail();behaviorIds.add(b.id)}for(const g of value.goals){if(!safeId(g.id)||goalIds.has(g.id)||!text(g.name,180)||!text(g.description,2000)||!text(g.category,80)||!text(g.trait,300)||g.behaviorId&&!safeId(g.behaviorId)||!date(g.due)||!Number.isFinite(g.progress)||g.progress<0||g.progress>100||!Array.isArray(g.habitIds)||g.habitIds.some(h=>!safeId(h)))fail();goalIds.add(g.id)}
- if(!text(value.letter.content,30000)||!date(value.letter.reviewDate))fail();const restored=structuredClone(value);let favoriteCount=0;for(const e of restored.boards.flatMap(b=>b.elements))if(e.favorite&&++favoriteCount>4)e.favorite=false;return restored;
-}

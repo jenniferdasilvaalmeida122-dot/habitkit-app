@@ -2,6 +2,10 @@
 
 Aplicativo web de acompanhamento de hábitos, em português, inspirado na linguagem visual do HabitKit para iOS. Implementação independente, sem afiliação ao produto original.
 
+## Contas e venda de acesso anual (preparação)
+
+A integração de e-mail/senha, banco privado e acesso anual está em preparação. Ainda não está ativada no site: exige um projeto Supabase, SMTP e a validação do webhook real da Cakto. Sem a configuração de contas, permanece o funcionamento local descrito abaixo. Instruções completas e limitações: [Contas e pagamento](docs/CONTAS-E-PAGAMENTO.md).
+
 ## Desenvolvimento
 
 Requer Node.js 20 ou superior. Não usa dependências externas nem exige banco de dados, credenciais ou instalação de pacotes.
